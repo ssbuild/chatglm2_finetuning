@@ -86,7 +86,7 @@ pip install -U transformers>=4.30 deepspeed xformers bitsandbytes>=0.39 accelera
    
 
 ![inference](data/1.png)
-
+![inference](data/2.png)
 
 
 
