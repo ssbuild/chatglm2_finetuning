@@ -18,10 +18,12 @@ from config import *
 data_conf = {
    'strategy': DataStrategy.truncation, # 数据策略选项
     DataStrategy.truncation: {
-
+        'ensure_answer_min_length': 1,
+        'sup': True, # 是否监督训练
     },
     DataStrategy.siding: {
         'sliding_size': train_info_args['max_seq_length'] // 3 * 2, #prompt滑动窗口大小
+        'sup': True, # 是否监督训练
     },
 
 }

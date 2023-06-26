@@ -1,5 +1,6 @@
 # @Time    : 2023/3/25 18:36
 # @Author  : tk
+import copy
 import random
 import typing
 from enum import Enum
@@ -41,32 +42,40 @@ class TokenIdsFinal:
 class TokenTruncation:
 
     @classmethod
-    def process(cls, tokenizer: ChatGLMTokenizer,config, a_ids, b_ids, max_seq_length, sptoken: typing.List):
-
-        input_ids_qa = a_ids + b_ids
-        input_ids_qa = input_ids_qa[:max_seq_length - 3] + [config.eos_token_id]
-
-        pos = 0
-        input_ids = sptoken + input_ids_qa[pos:pos + max_seq_length - 2]
-        labels = [-100] * len(sptoken) + input_ids_qa[pos:pos + max_seq_length - 2]
+    def process(cls, tokenizer: ChatGLMTokenizer,config, a_ids, b_ids, max_seq_length, sptoken: typing.List,ensure_answer_min_length=1,sup=True):
+        input_ids = a_ids[:max_seq_length - len(b_ids) -3 - ensure_answer_min_length] + b_ids
+        a_len = len(input_ids) - len(b_ids)
+        input_ids = input_ids[:max_seq_length - 3] + [config.eos_token_id]
+        if sup:
+            labels = [-100] * a_len + input_ids[a_len:]
+        else:
+            labels = copy.deepcopy(input_ids)
+        input_ids = sptoken + input_ids
+        labels = [-100] * len(sptoken) + labels
 
         d = TokenIdsFinal.process(input_ids,labels,max_seq_length,tokenizer)
         return [d]
 
 class TokenSiding:
-
     @classmethod
-    def process(cls, tokenizer: ChatGLMTokenizer,config, a_ids, b_ids, max_seq_length, sptoken: typing.List,sliding_size = None):
+    def process(cls, tokenizer: ChatGLMTokenizer,config, a_ids, b_ids, max_seq_length, sptoken: typing.List,sliding_size = None,sup=True):
         if sliding_size is None:
             sliding_size = max_seq_length
         ds = []
         input_ids_qa = a_ids + b_ids + [config.eos_token_id]
+        if sup:
+            labels_all = [-100] * len(a_ids) + b_ids
+        else:
+            labels_all = copy.deepcopy(input_ids_qa)
+
         pos = 0
         while pos < len(input_ids_qa):
             input_ids = sptoken + input_ids_qa[pos:pos + max_seq_length - 2]
-            labels = [-100]  * len(sptoken) + input_ids_qa[pos:pos + max_seq_length - 2]
-            pos += sliding_size - 2
+            labels = [-100] * len(sptoken) + labels_all[pos:pos + max_seq_length - 2]
 
+            pos += sliding_size
+            if np.all(np.asarray(labels) == -100):
+                continue
             d = TokenIdsFinal.process(input_ids,labels,max_seq_length,tokenizer)
             ds.append(d)
         return ds
