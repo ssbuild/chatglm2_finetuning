@@ -136,5 +136,5 @@ pip install -U transformers>=4.30 deepspeed xformers bitsandbytes>=0.39 accelera
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=ssbuild/chatglm_finetuning&type=Date)](https://star-history.com/#ssbuild/chatglm_finetuning&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=ssbuild/chatglm2_finetuning&type=Date)](https://star-history.com/#ssbuild/chatglm2_finetuning&Date)
 
