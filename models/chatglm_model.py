@@ -27,7 +27,7 @@ def build_masks_and_position_ids_glm(batch_input_ids, ctxlens):
         assert ctxlen <= max_len
         attention_mask = [1] * ctxlen + [0] * (max_len - ctxlen)
         batch_position_ids.append(torch.tensor(position_ids,dtype=torch.long))
-        batch_attention_mask.append(torch.tensor(attention_mask,dtype=torch.long))
+        batch_attention_mask.append(torch.tensor(attention_mask,dtype=torch.bool))
 
     batch_attention_mask = torch.stack(batch_attention_mask, dim=0)
     batch_position_ids = torch.stack(batch_position_ids, dim=0)
