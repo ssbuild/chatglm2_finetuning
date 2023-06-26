@@ -11,23 +11,19 @@ from deep_training.data_helper import DataHelper, ModelArguments, TrainingArgume
 from fastdatasets.record import load_dataset as Loader, RECORD, WriterObject, gfile
 from tqdm import tqdm
 from transformers import HfArgumentParser
-from data_processer import DataStrategy, TokenTruncation, TokenSingleSliding, TokenDoubleSliding
+from data_processer import DataStrategy, TokenSiding, TokenTruncation
 from models import ChatGLMTokenizer,LoraArguments,ChatGLMConfig,build_masks_and_position_ids_glm
 from config import *
 
 data_conf = {
    'strategy': DataStrategy.truncation, # 数据策略选项
     DataStrategy.truncation: {
-        'ensure_answer_min_length': 1,
+
     },
-    DataStrategy.singlesliding: {
+    DataStrategy.siding: {
         'sliding_size': train_info_args['max_seq_length'] // 3 * 2, #prompt滑动窗口大小
-        'p':1, # p < 0 , 随机选举prompt
     },
-    DataStrategy.doublesliding: {
-        'sliding_size': train_info_args['max_seq_length'] // 3 * 2, #双滑滑动窗口大小
-        'p':1,# p < 0 , 随机选举prompt
-    },
+
 }
 
 
@@ -68,10 +64,8 @@ class NN_DataHelper(DataHelper):
         strategy = data_conf['strategy']
         if strategy == DataStrategy.truncation:
             ds = TokenTruncation.process(tokenizer,config,a_ids, b_ids, max_seq_length, self.sptoken ,**data_conf[strategy])
-        elif strategy == DataStrategy.singlesliding:
-            ds = TokenSingleSliding.process(tokenizer,config, a_ids, b_ids, max_seq_length, self.sptoken, **data_conf[strategy])
-        elif strategy == DataStrategy.doublesliding:
-            ds = TokenDoubleSliding.process(tokenizer,config, a_ids, b_ids, max_seq_length, self.sptoken, **data_conf[strategy])
+        elif strategy == DataStrategy.siding:
+            ds = TokenSiding.process(tokenizer,config, a_ids, b_ids, max_seq_length, self.sptoken, **data_conf[strategy])
         else:
             raise ValueError('Invlid strategy',strategy)
 
@@ -145,12 +139,11 @@ class NN_DataHelper(DataHelper):
         for k in o:
             o[k] = torch.stack(o[k])
 
-
-        max_len = torch.max(o.pop('seqlen')).tolist()
+        seqlens = o.pop('seqlen')
+        max_len = torch.max(seqlens).tolist()
         input_ids = o['input_ids'][:, :max_len]
-        ctxlens = o.pop('ctxlen')
-        assert ctxlens is not None
-        attention_mask,position_ids = build_masks_and_position_ids_glm(input_ids,ctxlens,max_len)
+
+        attention_mask,position_ids = build_masks_and_position_ids_glm(input_ids,seqlens)
         o['input_ids'] = input_ids.long()
         o['attention_mask'] = attention_mask.bool()
         o['position_ids'] = position_ids.long()
