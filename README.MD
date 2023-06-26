@@ -11,9 +11,12 @@
   - pip install -U -r requirements.txt
   - 如果无法安装 , 可以切换官方源 pip install -i https://pypi.org/simple -U -r requirements.txt  
 
+```text
 dev 通过一下方式安装
 pip install -U git+https://github.com/ssbuild/deep_training.git
 pip install -U transformers>=4.30 deepspeed xformers bitsandbytes>=0.39 accelerate>=0.20
+```
+
 
 ## weight
 
