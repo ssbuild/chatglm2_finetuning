@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 class MyTransformer(MyTransformerChatGlmLMHeadModel,ModelWeightMinMax, with_pl=True):
     def __init__(self, *args,new_num_tokens=None, **kwargs):
-        lora_args: LoraArguments = kwargs.pop('lora_args',None)
+        lora_args: LoraConfig = kwargs.pop('lora_args',None)
         num_layers_freeze = kwargs.pop('num_layers_freeze',-1)
         super(MyTransformer, self).__init__(*args, **kwargs)
         self.lora_args = lora_args
@@ -16,7 +16,7 @@ class MyTransformer(MyTransformerChatGlmLMHeadModel,ModelWeightMinMax, with_pl=T
 
         if lora_args is not None and lora_args.with_lora:
             self.backbone.enable_input_require_grads()
-            model = LoraModel(self.backbone, lora_args)
+            model = LoraModel(self.backbone, lora_args,auto_prepare_kbit_training=False)
             print('==' * 30,'lora info')
             model.print_trainable_parameters()
             self.set_model(model, copy_attr=False)
