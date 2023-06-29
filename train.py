@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     dataHelper = NN_DataHelper(model_args, training_args, data_args)
     config_kwargs = {"pre_seq_len": global_args["pre_seq_len"],
-                     "prefix_projection": global_args["pre_seq_len"]}
+                     "prefix_projection": global_args["prefix_projection"]}
     if global_args["num_layers"] > 0:
         config_kwargs["num_layers"] = global_args["num_layers"]
     tokenizer, config, _, _ = dataHelper.load_tokenizer_and_config(tokenizer_class_name=ChatGLMTokenizer,
