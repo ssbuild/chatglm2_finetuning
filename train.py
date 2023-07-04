@@ -27,7 +27,8 @@ if __name__ == '__main__':
     if global_args["num_layers"] > 0:
         config_kwargs["num_layers"] = global_args["num_layers"]
     tokenizer, config, _, _ = dataHelper.load_tokenizer_and_config(tokenizer_class_name=ChatGLMTokenizer,
-                                                                   config_class_name=ChatGLMConfig,config_kwargs=config_kwargs)
+                                                                   config_class_name=ChatGLMConfig,
+                                                                   config_kwargs=config_kwargs)
 
 
     if config.quantization_bit !=0 and not config.pre_seq_len:
@@ -39,13 +40,7 @@ if __name__ == '__main__':
     if config.pre_seq_len is not None and lora_args is not None:
         raise ValueError('with lora and ptuning v2 cannot open at the same time')
 
-    # 缓存数据集
-    if data_args.do_train:
-        dataHelper.make_dataset_with_args(data_args.train_file, mixed_data=False, shuffle=True, mode='train')
-    if data_args.do_eval:
-        dataHelper.make_dataset_with_args(data_args.eval_file, mode='eval')
-    if data_args.do_test:
-        dataHelper.make_dataset_with_args(data_args.test_file, mode='test')
+    dataHelper.make_dataset_all()
 
     deepspeed_config = get_deepspeed_config()
     strategy = 'ddp' if torch.cuda.device_count() > 1 else 'auto'

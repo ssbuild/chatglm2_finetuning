@@ -16,7 +16,6 @@ enable_int4 = False # qlora int4
 if enable_lora:
     from config.sft_config_lora import *
 elif enable_ptv2:
-    raise NotImplementedError
     from config.sft_config_ptv2 import *
 else:
     from config.sft_config import *
