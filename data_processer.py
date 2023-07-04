@@ -5,7 +5,7 @@ import random
 import typing
 from enum import Enum
 import numpy as np
-from models import ChatGLMTokenizer
+from aigc_zoo.model_zoo.chatglm2.chatglm_model import ChatGLMTokenizer
 
 
 class DataStrategy(Enum):
