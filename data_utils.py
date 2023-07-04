@@ -12,7 +12,7 @@ from fastdatasets.record import load_dataset as Loader, RECORD, WriterObject, gf
 from tqdm import tqdm
 from transformers import HfArgumentParser
 from data_processer import DataStrategy, TokenSiding, TokenTruncation
-from models import ChatGLMTokenizer,LoraArguments,ChatGLMConfig,build_masks_and_position_ids_glm
+from aigc_zoo.model_zoo.chatglm2.chatglm_model import ChatGLMTokenizer,LoraArguments,ChatGLMConfig,build_masks_and_position_ids_glm
 from config import *
 
 data_conf = {

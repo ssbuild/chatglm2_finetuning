@@ -7,13 +7,9 @@ from enum import Enum
 import numpy as np
 from aigc_zoo.model_zoo.chatglm2.chatglm_model import ChatGLMTokenizer
 
-
 class DataStrategy(Enum):
     truncation = 1
     siding = 2
-
-
-
 
 class TokenIdsFinal:
     @classmethod
