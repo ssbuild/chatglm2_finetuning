@@ -1,6 +1,7 @@
-deep_training>=0.1.10,<0.1.12
+deep_training>=0.1.11,<0.1.12
 cpm_kernels
 transformers>=4.30
 deepspeed
 bitsandbytes>=0.39
 accelerate>=0.20
+aigc-zoo>=0.1.11,<0.1.12
