@@ -157,9 +157,9 @@ class NN_DataHelper(DataHelper):
 
         # schema for arrow parquet
         schema = {
-            "input_ids": "int32",
-            "labels": "int32",
-            "seqlen": "int32",
+            "input_ids": "int32_list",
+            "labels": "int32_list",
+            "seqlen": "int32_list",
         }
         # 缓存数据集
         if data_args.do_train:
