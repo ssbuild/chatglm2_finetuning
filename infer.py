@@ -17,9 +17,7 @@ if __name__ == '__main__':
     tokenizer: ChatGLMTokenizer
     tokenizer, config, _,_ = dataHelper.load_tokenizer_and_config(
         tokenizer_class_name=ChatGLMTokenizer, config_class_name=ChatGLMConfig)
-    
-    config.initializer_weight = False
-    
+
     pl_model = MyTransformer(config=config, model_args=model_args, torch_dtype=torch.float16,)
 
     model = pl_model.get_llm_model()

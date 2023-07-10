@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     ckpt_dir = './best_ckpt/last'
     config = ChatGLMConfig.from_pretrained(ckpt_dir)
-    config.initializer_weight = False
+    
     lora_args = LoraArguments.from_pretrained(ckpt_dir)
 
     assert lora_args.inference_mode == True and config.pre_seq_len is None
