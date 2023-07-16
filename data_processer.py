@@ -5,7 +5,7 @@ import random
 import typing
 from enum import Enum
 import numpy as np
-from aigc_zoo.model_zoo.chatglm2.chatglm_model import ChatGLMTokenizer
+from aigc_zoo.model_zoo.chatglm2.llm_model import ChatGLMTokenizer
 
 class DataStrategy(Enum):
     truncation = 1
@@ -39,7 +39,8 @@ class TokenTruncation:
 
     @classmethod
     def process(cls, tokenizer: ChatGLMTokenizer,config, a_ids, b_ids, max_seq_length, sptoken: typing.List,ensure_answer_min_length=1,sup=True):
-        input_ids = a_ids[:max_seq_length - len(b_ids) -3 - ensure_answer_min_length] + b_ids
+        a_max_len = max_seq_length - len(b_ids) - 3 - ensure_answer_min_length
+        input_ids = a_ids[-a_max_len:] + b_ids
         a_len = len(input_ids) - len(b_ids)
         input_ids = input_ids[:max_seq_length - 3] + [config.eos_token_id]
         if sup:

@@ -5,7 +5,7 @@ import torch
 from deep_training.data_helper import ModelArguments, DataArguments
 from transformers import HfArgumentParser
 from data_utils import train_info_args, NN_DataHelper,global_args
-from aigc_zoo.model_zoo.chatglm2.chatglm_model import MyTransformer,ChatGLMTokenizer,setup_model_profile, ChatGLMConfig,LoraArguments
+from aigc_zoo.model_zoo.chatglm2.llm_model import MyTransformer,ChatGLMTokenizer,setup_model_profile, ChatGLMConfig,LoraArguments
 
 
 if __name__ == '__main__':

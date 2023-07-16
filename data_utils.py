@@ -12,7 +12,7 @@ from fastdatasets.record import load_dataset as Loader, RECORD, WriterObject, gf
 from tqdm import tqdm
 from transformers import HfArgumentParser
 from data_processer import DataStrategy, TokenSiding, TokenTruncation
-from aigc_zoo.model_zoo.chatglm2.chatglm_model import ChatGLMTokenizer,LoraArguments,ChatGLMConfig,build_masks_and_position_ids_glm
+from aigc_zoo.model_zoo.chatglm2.llm_model import ChatGLMTokenizer,LoraArguments,ChatGLMConfig,build_masks_and_position_ids_glm
 from config import *
 
 data_conf = {
@@ -114,16 +114,13 @@ class NN_DataHelper(DataHelper):
                     for session in paragraph]
                 for sid,(q,a) in enumerate(paragraph):
                     assert len(a),ValueError('answer cannot empty')
-                    if sid == 0:
-                        D.append((q, a))
-                    else:
-                        prompt_text = ''
-                        for j in range(sid + 1):
-                            if j == sid:
-                                prompt_text += "[Round {}]\n问：{}\n答：".format(sid, paragraph[j][0])
-                            else:
-                                prompt_text += "[Round {}]\n问：{}\n答：{}".format(j, paragraph[j][0], paragraph[j][1])
-                        D.append((prompt_text,a))
+                    prompt_text = ''
+                    for j in range(sid + 1):
+                        if j != sid:
+                            prompt_text += "[Round {}]\n\n问：{}\n\n答：{}\n\n".format(j + 1, paragraph[j][0], paragraph[j][1])
+                        else:
+                            prompt_text += "[Round {}]\n\n问：{}\n\n答：".format(j + 1, paragraph[j][0])
+                    D.append((prompt_text,a))
         return D
 
     def collate_fn(self,batch):
