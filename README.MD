@@ -3,6 +3,7 @@
 
 ```text
     dev 分支加一些新功能和想法 如果求稳定，请使用 stable分支
+    07-18 微调经验分享见: https://github.com/ssbuild/aigc_zoo#训练经验分享
     07-16 modify data strategy
     07-04 support ptv2 and arrow_stream,arrow_file,parquet dataset
 ```
