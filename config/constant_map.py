@@ -20,6 +20,21 @@ train_info_models = {
         'tokenizer_name': '/data/nlp/pre_models/torch/chatglm2/chatglm2-6b-int4',
     },
 
+    'chatglm2-6b-32k': {
+        'model_type': 'chatglm2',
+        'model_name_or_path': '/data/nlp/pre_models/torch/chatglm2/chatglm2-6b-32k',
+        'config_name': '/data/nlp/pre_models/torch/chatglm2/chatglm2-6b-32k/config.json',
+        'tokenizer_name': '/data/nlp/pre_models/torch/chatglm2/chatglm2-6b-32k',
+    },
+
+    'chatglm2-6b-32k-int4': {
+        'model_type': 'chatglm2',
+        'model_name_or_path': '/data/nlp/pre_models/torch/chatglm2/chatglm2-6b-32k-int4',
+        'config_name': '/data/nlp/pre_models/torch/chatglm2/chatglm2-6b-32k-int4/config.json',
+        'tokenizer_name': '/data/nlp/pre_models/torch/chatglm2/chatglm2-6b-32k-int4',
+    },
+
+
 }
 
 
