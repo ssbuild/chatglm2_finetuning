@@ -4,9 +4,8 @@ import json
 from config.constant_map import train_info_models
 
 # 可切换量化模型 ptv2 训练
-train_model_config = train_info_models['chatglm2']
+train_model_config = train_info_models['chatglm2-6b']
 # train_model_config = train_info_models['chatglm-6b-int4']
-# train_model_config = train_info_models['chatglm-6b-int8']
 
 
 # 全局变量

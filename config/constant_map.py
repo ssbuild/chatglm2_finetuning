@@ -6,7 +6,7 @@
 
 
 train_info_models = {
-    'chatglm2': {
+    'chatglm2-6b': {
         'model_type': 'chatglm2',
         'model_name_or_path': '/data/nlp/pre_models/torch/chatglm2/chatglm2-6b',
         'config_name': '/data/nlp/pre_models/torch/chatglm2/chatglm2-6b/config.json',

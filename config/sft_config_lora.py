@@ -8,7 +8,7 @@ from transformers import BitsAndBytesConfig
 from config.constant_map import train_info_models, train_target_modules_maps
 
 # 量化权重不支持此模式训练
-train_model_config = train_info_models['chatglm2']
+train_model_config = train_info_models['chatglm2-6b']
 
 # 全局变量
 
