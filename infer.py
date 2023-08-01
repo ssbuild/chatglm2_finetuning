@@ -6,6 +6,8 @@ from transformers import HfArgumentParser
 from data_utils import train_info_args, NN_DataHelper
 from aigc_zoo.model_zoo.chatglm2.llm_model import MyTransformer,ChatGLMTokenizer,LoraArguments,setup_model_profile, ChatGLMConfig
 
+
+
 if __name__ == '__main__':
     train_info_args['seed'] = None
     parser = HfArgumentParser((ModelArguments, DataArguments,))
@@ -24,6 +26,8 @@ if __name__ == '__main__':
     if not model.quantized:
         # 按需修改，目前只支持 4/8 bit 量化 ， 可以保存量化模型
         model.half().quantize(4).cuda()
+        #保存量化权重
+        #model.save_pretrained('chatglm2-6b-int4',max_shard_size="4GB")
     else:
         # 已经量化
         model.half().cuda()
