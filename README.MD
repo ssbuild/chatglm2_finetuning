@@ -24,8 +24,9 @@ pip install -U transformers>=4.30 deepspeed xformers bitsandbytes>=0.39 accelera
 ## weight
 
 - [chatglm2-6b](https://huggingface.co/THUDM/chatglm2-6b)   支持四种微调方式
-- [chatglm2-6b-int4](https://huggingface.co/THUDM/chatglm2-6b-int4) 
+- [chatglm2-6b-int4](https://huggingface.co/THUDM/chatglm2-6b-int4)  ptv2
 - [chatglm2-6b-32k](https://huggingface.co/THUDM/chatglm2-6b-32k)   支持四种微调方式
+- [chatglm2-6b-32k-int4](https://huggingface.co/ssbuild/chatglm2-6b-32k-int4/tree/main)  ptv2
 
 
 ## data sample
