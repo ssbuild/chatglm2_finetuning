@@ -26,7 +26,6 @@ if __name__ == '__main__':
     if not model.quantized:
         # 按需修改，目前只支持 4/8 bit 量化 ， 可以保存量化模型
         model.half().quantize(4).cuda()
-        model.config.quantization_bit = 4
         #保存量化权重
         # model.save_pretrained('chatglm2-6b-int4',max_shard_size="4GB")
         # exit(0)
