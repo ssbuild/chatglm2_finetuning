@@ -79,7 +79,8 @@ def get_base_model():
     return pl_model.get_llm_model()
 
 if __name__ == '__main__':
-    tokenizer,config,lora_args = convert_to_peft('./peft_lora')
+    peft_lora_weight = './peft_lora'
+    tokenizer,config,lora_args = convert_to_peft(peft_lora_weight)
 
     from transformers import AutoModelForCausalLM
     from peft import get_peft_config, get_peft_model, LoraConfig, TaskType
@@ -101,8 +102,8 @@ if __name__ == '__main__':
     # model.print_trainable_parameters()
 
     model = get_base_model()
-
     model = get_peft_model(model, peft_config)
+    model = model.from_pretrained(peft_lora_weight)
     model.print_trainable_parameters()
 
     text_list = [
