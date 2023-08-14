@@ -4,6 +4,8 @@
 # @File：convert_lora_to_peft
 import gc
 import os
+import re
+
 import torch
 from deep_training.data_helper import ModelArguments
 from transformers import HfArgumentParser
@@ -45,8 +47,6 @@ def convert_to_peft(output_dir = './peft_lora'):
     # 加载lora权重
     pl_model.load_sft_weight(ckpt_dir, is_trainable=True)
 
-    pl_model.eval().half().cuda()
-
     lora_model: LoraModel = pl_model.backbone  # noqa
 
     lora_model.save_pretrained(output_dir)
@@ -55,6 +55,13 @@ def convert_to_peft(output_dir = './peft_lora'):
     del pl_model
     gc.collect()
 
+    #权重修改
+    weight_file = os.path.join(output_dir,'adapter_model.bin')
+    m = torch.load(weight_file)
+    m_new = {}
+    for k,v in m.items():
+        m_new[re.sub(r'transformer.transformer','transformer',k)] = v
+    torch.save(m_new,weight_file)
     return tokenizer,config,lora_args
 
 
@@ -75,7 +82,6 @@ def get_base_model():
 
     pl_model = MyTransformer(config=config, model_args=model_args, torch_dtype=torch.float16, )
 
-
     return pl_model.get_llm_model()
 
 if __name__ == '__main__':
@@ -83,10 +89,9 @@ if __name__ == '__main__':
     tokenizer,config,lora_args = convert_to_peft(peft_lora_weight)
 
     from transformers import AutoModelForCausalLM
-    from peft import get_peft_config, get_peft_model, LoraConfig, TaskType
+    from peft import get_peft_config, get_peft_model, LoraConfig, TaskType,PeftModel
 
-    model_name_or_path = "bigscience/mt0-large"
-    tokenizer_name_or_path = "bigscience/mt0-large"
+
 
     peft_config = LoraConfig(
         task_type=TaskType.CAUSAL_LM,
@@ -94,18 +99,24 @@ if __name__ == '__main__':
         r=lora_args.r,
         lora_alpha=lora_args.lora_alpha,
         lora_dropout=lora_args.lora_dropout,
-        bias=lora_args.bias
+        bias=lora_args.bias,
+        modules_to_save=lora_args.modules_to_save,
+        layers_to_transform=lora_args.layers_to_transform,
+        layers_pattern=lora_args.layers_pattern,
     )
 
+    #覆盖配置文件
+    peft_config.save_pretrained(peft_lora_weight)
     # model = AutoModelForCausalLM.from_pretrained(model_name_or_path)
     # model = get_peft_model(model, peft_config)
     # model.print_trainable_parameters()
 
     model = get_base_model()
-    model = get_peft_model(model, peft_config)
-    model = model.from_pretrained(peft_lora_weight)
+    # model = get_peft_model(model, peft_config)
+    model = PeftModel.from_pretrained(model,peft_lora_weight)
     model.print_trainable_parameters()
 
+    model.eval().half().cuda()
     text_list = [
         "写一个诗歌，关于冬天",
         "晚上睡不着应该怎么办",
