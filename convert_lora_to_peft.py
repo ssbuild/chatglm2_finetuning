@@ -103,6 +103,7 @@ if __name__ == '__main__':
         modules_to_save=lora_args.modules_to_save,
         layers_to_transform=lora_args.layers_to_transform,
         layers_pattern=lora_args.layers_pattern,
+        target_modules=lora_args.target_modules
     )
 
     #覆盖配置文件
