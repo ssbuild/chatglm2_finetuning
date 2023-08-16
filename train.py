@@ -31,11 +31,9 @@ if __name__ == '__main__':
                                                                    config_kwargs=config_kwargs)
 
 
-    if config.quantization_bit !=0 and not config.pre_seq_len:
-        raise AssertionError("quantization only support ptv2 finetuning")
 
     if config.quantization_bit != 0 and lora_args is not None:
-        raise AssertionError("quantization only support ptv2 finetuning")
+        raise AssertionError("quantization ptv2 not support")
 
     if config.pre_seq_len is not None and lora_args is not None:
         raise ValueError('with lora and ptuning v2 cannot open at the same time')
@@ -47,6 +45,7 @@ if __name__ == '__main__':
     if deepspeed_config is not None and len(deepspeed_config):
         strategy = DeepSpeedStrategy(config=deepspeed_config, )
 
+    is_bf16_supported = torch.cuda.is_bf16_supported()
     checkpoint_callback = ModelCheckpointEx(
         # monitor='loss',
         dirpath=output_weight_dir,
@@ -59,6 +58,14 @@ if __name__ == '__main__':
         # monitor="loss"，mode = "min", save_top_k = 10 按loss存储10个模型
         # monitor="step"，mode = "max", save_top_k = 10 按步存储最后10个模型
     )
+
+    # 精度 根据实际情况做调整
+    if config.quantization_bit != 0 and not config.pre_seq_len:
+        precision = '32'
+    elif is_bf16_supported:
+        precision = 'bf16'
+    else:
+        precision = '16'
 
     trainer = Trainer(
         callbacks=[checkpoint_callback,LearningRateMonitor(logging_interval='step')],
@@ -73,7 +80,7 @@ if __name__ == '__main__':
         num_sanity_val_steps=0,
         strategy=strategy,
         #lora int8 precision='32'
-        precision= '16' , #  #可以自行尝试  "32": "32-true", "16": "16-mixed", "bf16": "bf16-mixed"
+        precision= precision , #  #可以自行尝试  "32": "32-true", "16": "16-mixed", "bf16": "bf16-mixed"
     )
 
 
@@ -96,8 +103,11 @@ if __name__ == '__main__':
         pl_model.get_llm_model().half()
         pl_model.get_llm_model().transformer.prefix_encoder.float()
     else:
-        # Finetune
-        pl_model = pl_model.float()
+        if config.quantization_bit != 0:
+            pl_model = pl_model.half() if not is_bf16_supported else pl_model.bfloat16()
+        else:
+            # Finetune
+            pl_model = pl_model.float() if not is_bf16_supported else pl_model.bfloat16()
 
 
     def dataset_loader_filter_fn(dataset):
