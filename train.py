@@ -116,6 +116,7 @@ if __name__ == '__main__':
 
 
     train_datasets = dataHelper.load_distributed_random_sampler(
+
         dataHelper.train_files,
         with_load_memory=data_args.data_backend == 'record',
         collate_fn=dataHelper.collate_fn,

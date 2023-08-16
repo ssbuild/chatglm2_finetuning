@@ -74,6 +74,7 @@ if __name__ == '__main__':
     output_peft_dir = './peft_lora' # peft 路径
     tokenizer,config,lora_args = convert_to_peft(ckpt_dir, output_peft_dir)
 
+    # 验证peft
     from transformers import AutoModelForCausalLM
     from peft import get_peft_config, get_peft_model, LoraConfig, TaskType,PeftModel
 
