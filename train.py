@@ -68,7 +68,7 @@ if __name__ == '__main__':
         precision = '16'
 
     if global_args["quantization_config"] is not None and global_args["quantization_config"].load_in_8bit:
-        precision = 32
+        precision = "32"
 
     trainer = Trainer(
         callbacks=[checkpoint_callback,LearningRateMonitor(logging_interval='step')],
