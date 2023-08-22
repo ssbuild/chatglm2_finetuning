@@ -5,17 +5,13 @@ import json
 import os
 import torch
 from transformers import BitsAndBytesConfig
+from config.constant_map import train_model_config
 
-from config.constant_map import train_info_models
-
-# 量化权重不支持此模式训练
-train_model_config = train_info_models['chatglm2-6b']
 
 # 全局变量
 
 global_args = {
-    "load_in_8bit": False, # qlora int8
-    "load_in_4bit": False, # qlora int4
+
 
     # load_in_4bit 量化配置
     "quantization_config": None,

@@ -67,6 +67,9 @@ if __name__ == '__main__':
     else:
         precision = '16'
 
+    if global_args["quantization_config"] is not None and global_args["quantization_config"].load_in_8bit:
+        precision = 32
+
     trainer = Trainer(
         callbacks=[checkpoint_callback,LearningRateMonitor(logging_interval='step')],
         max_epochs=training_args.max_epochs,
@@ -87,7 +90,6 @@ if __name__ == '__main__':
     pl_model = MyTransformer(config=config, model_args=model_args, training_args=training_args, lora_args=lora_args,
                              num_layers_freeze=global_args["num_layers_freeze"],#
                              quantization_config=global_args["quantization_config"],
-                             load_in_8bit=global_args["load_in_8bit"],
                              device_map={"": trainer.local_rank} if trainer.world_size > 1 else "auto",
                              torch_dtype=torch.float16,
                              # new_num_tokens=len(tokenizer),  # 可能扩充词 , 还有一些隐藏token, 如果不需要可自行注释
