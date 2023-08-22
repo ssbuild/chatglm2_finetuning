@@ -12,7 +12,7 @@ from fastdatasets.record import load_dataset as Loader, RECORD, WriterObject, gf
 from tqdm import tqdm
 from transformers import HfArgumentParser
 from data_processer import DataStrategy, TokenSiding, TokenTruncation
-from aigc_zoo.model_zoo.chatglm2.llm_model import ChatGLMTokenizer,LoraArguments,ChatGLMConfig,build_masks_and_position_ids_glm
+from aigc_zoo.model_zoo.chatglm2.llm_model import ChatGLMTokenizer,EffiArguments,ChatGLMConfig,build_masks_and_position_ids_glm
 from config import *
 
 data_conf = {
@@ -202,7 +202,7 @@ class NN_DataHelper(DataHelper):
             self.make_dataset_with_args(data_args.test_file, mode='test',schema=schema)
 
 if __name__ == '__main__':
-    parser = HfArgumentParser((ModelArguments, TrainingArguments, DataArguments, LoraArguments))
+    parser = HfArgumentParser((ModelArguments, TrainingArguments, DataArguments, EffiArguments))
     model_args, training_args, data_args, lora_args = parser.parse_dict(train_info_args)
     lora_args = lora_args.config
 
