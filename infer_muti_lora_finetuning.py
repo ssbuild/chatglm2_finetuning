@@ -2,15 +2,15 @@
 # @Time    : 2023/3/9 15:29
 import os
 import torch
-from deep_training.data_helper import ModelArguments, DataArguments
+from deep_training.data_helper import ModelArguments
 from transformers import HfArgumentParser
 from data_utils import train_info_args, NN_DataHelper, global_args
 from aigc_zoo.model_zoo.chatglm2.llm_model import MyTransformer, ChatGLMTokenizer, setup_model_profile, ChatGLMConfig, \
-    LoraArguments,LoraModel
+    PetlArguments,PetlModel
 
 if __name__ == '__main__':
     train_info_args['seed'] = None
-    parser = HfArgumentParser((ModelArguments))
+    parser = HfArgumentParser((ModelArguments,))
     (model_args, ) = parser.parse_dict(train_info_args, allow_extra_keys=True)
     setup_model_profile()
     dataHelper = NN_DataHelper(model_args)
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     ckpt_dir = './best_ckpt/last'
     config = ChatGLMConfig.from_pretrained(ckpt_dir)
 
-    lora_args = LoraArguments.from_pretrained(ckpt_dir)
+    lora_args = PetlArguments.from_pretrained(ckpt_dir)
 
     assert lora_args.inference_mode == True and config.pre_seq_len is None
 
@@ -48,8 +48,8 @@ if __name__ == '__main__':
 
     pl_model.eval().half().cuda()
 
-    # backbone model replaced LoraModel
-    lora_model: LoraModel = pl_model.backbone
+    # backbone model replaced PetlModel
+    lora_model: PetlModel = pl_model.backbone
 
     text_list = [
         "写一个诗歌，关于冬天",
