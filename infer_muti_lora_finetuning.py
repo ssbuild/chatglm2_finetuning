@@ -39,11 +39,10 @@ if __name__ == '__main__':
     # 加载多个lora权重
     pl_model.load_sft_weight(ckpt_dir,adapter_name="default")
 
-    # 加载多个lora权重
-    #pl_model.load_sft_weight(ckpt_dir, adapter_name="yourname")
+    #加载多个lora权重
+    pl_model.load_sft_weight(ckpt_dir, adapter_name="default2")
 
-    # 加载多个lora权重
-    #pl_model.load_sft_weight(ckpt_dir, adapter_name="yourname")
+
 
 
     pl_model.eval().half().cuda()
