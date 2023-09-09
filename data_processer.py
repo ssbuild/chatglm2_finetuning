@@ -33,46 +33,119 @@ class TokenIdsFinal:
         return d
 
 
-#对prompt 截断
 
+
+def build_template_chatglm(query, answer = None, history=None):
+    prompt = ''
+    sid = 0
+    if history is not None:
+        for q, a in history:
+            prompt += "[Round {}]\n问：{}\n答：{}".format(sid,q, a)
+            sid += 1
+    prompt += query if sid == 0 else "[Round {}]\n问：{}\n答：".format(sid, query)
+    if answer is not None:
+        prompt += answer
+    return prompt
+
+def build_template_chatglm2(query, answer = None, history=None):
+    prompt = ''
+    sid = 1
+    if history is not None:
+        for q, a in history:
+            prompt += "[Round {}]\n问：{}\n答：{}".format(sid,q, a)
+            sid += 1
+    prompt += "[Round {}]\n问：{}\n答：".format(sid, query)
+    if answer is not None:
+        prompt += answer
+    return prompt
+
+
+def build_template_default(query, answer = None, history=None):
+    prompt = ''
+    if history is not None:
+        for q,a in history:
+            prompt += "User: {}\nAssistant:{}".format(q,a)
+    prompt += "User: {}\nAssistant:".format(query)
+    if answer is not None:
+        prompt += answer
+    return prompt
+
+def build_template_tiger(query,answer = None, history=None):
+    prompt = ''
+    tok_ins = "\n\n### Instruction:\n"
+    tok_res = "\n\n### Response:\n"
+    if history is not None:
+        for q,a in history:
+            prompt += "{}{}{}{}".format(tok_ins,q,tok_res,a)
+
+    prompt += "{}{}{}".format(tok_ins, query, tok_res)
+    if answer is not None:
+        prompt += answer
+    return prompt
+
+
+# 切换模版
+build_template = build_template_chatglm2
+
+
+#对截断
 class TokenTruncation:
 
     @classmethod
-    def process(cls, tokenizer: ChatGLMTokenizer,config, a_ids, b_ids, max_seq_length, sptoken: typing.List,ensure_answer_min_length=1,sup=True):
-        a_max_len = max_seq_length - len(b_ids) - 3 - ensure_answer_min_length
-        input_ids = a_ids[-a_max_len:] + b_ids
-        a_len = len(input_ids) - len(b_ids)
-        input_ids = input_ids[:max_seq_length - 3] + [config.eos_token_id]
-        if sup:
-            labels = [-100] * a_len + input_ids[a_len:]
-        else:
-            labels = copy.deepcopy(input_ids)
-        input_ids = sptoken + input_ids
-        labels = [-100] * len(sptoken) + labels
+    def process(cls, tokenizer: ChatGLMTokenizer,config, examples, max_seq_length, sptoken: typing.List,ensure_answer_min_length=1,sup=True):
+        assert ensure_answer_min_length > 0
+        ds = []
+        prefix, examples = examples
+        for sid, (q, a) in enumerate(examples):
+            a_ids, b_ids = [], []
+            if len(prefix) > 0:
+                a_ids += tokenizer.encode(text=prefix, add_special_tokens=False)
 
-        d = TokenIdsFinal.process(input_ids,labels,max_seq_length,tokenizer)
-        return [d]
+            a_ids += tokenizer.encode(text=build_template(q, history=examples[:sid]), add_special_tokens=False)
+            b_ids = tokenizer.encode(text=a, add_special_tokens=False) + [config.eos_token_id]
+
+            a_max_len = max_seq_length - len(b_ids) - 3 - ensure_answer_min_length
+            input_ids = a_ids[-a_max_len:] + b_ids
+            a_len = len(input_ids) - len(b_ids)
+            input_ids = input_ids[:max_seq_length - 3] + [config.eos_token_id]
+            if sup:
+                labels = [-100] * a_len + input_ids[a_len:]
+            else:
+                labels = copy.deepcopy(input_ids)
+            input_ids = sptoken + input_ids
+            labels = [-100] * len(sptoken) + labels
+            ds.append(TokenIdsFinal.process(input_ids,labels,max_seq_length,tokenizer))
+        return ds
 
 class TokenSiding:
     @classmethod
-    def process(cls, tokenizer: ChatGLMTokenizer,config, a_ids, b_ids, max_seq_length, sptoken: typing.List,sliding_size = None,sup=True):
+    def process(cls, tokenizer: ChatGLMTokenizer,config, examples, max_seq_length, sptoken: typing.List,sliding_size = None,sup=True):
         if sliding_size is None:
             sliding_size = max_seq_length
         ds = []
-        input_ids_qa = a_ids + b_ids + [config.eos_token_id]
-        if sup:
-            labels_all = [-100] * len(a_ids) + b_ids
-        else:
-            labels_all = copy.deepcopy(input_ids_qa)
+        prefix, examples = examples
+        for sid, (q, a) in enumerate(examples):
+            a_ids, b_ids = [], []
+            if len(prefix) > 0:
+                a_ids += tokenizer.encode(text=prefix, add_special_tokens=False)
 
-        pos = 0
-        while pos < len(input_ids_qa):
-            input_ids = sptoken + input_ids_qa[pos:pos + max_seq_length - 2]
-            labels = [-100] * len(sptoken) + labels_all[pos:pos + max_seq_length - 2]
+            a_ids += tokenizer.encode(text=build_template(q, history=examples[:sid]), add_special_tokens=False)
+            b_ids = tokenizer.encode(text=a, add_special_tokens=False) + [config.eos_token_id]
 
-            pos += sliding_size
-            if np.all(np.asarray(labels) == -100):
-                continue
-            d = TokenIdsFinal.process(input_ids,labels,max_seq_length,tokenizer)
-            ds.append(d)
+            input_ids_qa = a_ids + b_ids + [config.eos_token_id]
+            if sup:
+                labels_all = [-100] * len(a_ids) + b_ids
+            else:
+                labels_all = copy.deepcopy(input_ids_qa)
+
+            pos = 0
+            while pos < len(input_ids_qa):
+                input_ids = sptoken + input_ids_qa[pos:pos + max_seq_length - 2]
+                labels = [-100] * len(sptoken) + labels_all[pos:pos + max_seq_length - 2]
+
+                pos += sliding_size
+                if np.all(np.asarray(labels) == -100):
+                    continue
+                d = TokenIdsFinal.process(input_ids,labels,max_seq_length,tokenizer)
+                ds.append(d)
         return ds

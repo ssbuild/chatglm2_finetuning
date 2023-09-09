@@ -143,6 +143,11 @@ a answer   must
 - [rlhf_chatglm](https://github.com/ssbuild/rlhf_chatglm)
 - [rlhf_chatyuan](https://github.com/ssbuild/rlhf_chatyuan)
 - [rwkv_finetuning](https://github.com/ssbuild/rwkv_finetuning)
+- [baichuan_finetuning](https://github.com/ssbuild/baichuan_finetuning)
+- [baichuan2_finetuning](https://github.com/ssbuild/baichuan_finetuning)
+- [xverse_finetuning](https://github.com/ssbuild/xverse_finetuning)
+- [aigc_serving](https://github.com/ssbuild/aigc_serving)
+- [aigc_evals](https://github.com/ssbuild/aigc_evals)
 
 
 ## 
