@@ -102,12 +102,10 @@ class TokenTruncation:
                 a_ids += tokenizer.encode(text=prefix, add_special_tokens=False)
 
             a_ids += tokenizer.encode(text=build_template(q, history=examples[:sid]), add_special_tokens=False)
-            b_ids = tokenizer.encode(text=a, add_special_tokens=False) + [config.eos_token_id]
+            b_ids = tokenizer.encode(text=a)[:max_seq_length - 3 - ensure_answer_min_length] + [config.eos_token_id]
 
-            a_max_len = max_seq_length - len(b_ids) - 3 - ensure_answer_min_length
-            input_ids = a_ids[-a_max_len:] + b_ids
-            a_len = len(input_ids) - len(b_ids)
-            input_ids = input_ids[:max_seq_length - 3] + [config.eos_token_id]
+            a_len = max_seq_length - len(b_ids)
+            input_ids = a_ids[-a_len:] + b_ids
             if sup:
                 labels = [-100] * a_len + input_ids[a_len:]
             else:
