@@ -102,8 +102,8 @@ class TokenTruncation:
                 a_ids += tokenizer.encode(text=prefix, add_special_tokens=False)
 
             a_ids += tokenizer.encode(text=build_template(q, history=examples[:sid]), add_special_tokens=False)
-            b_ids = tokenizer.encode(text=a)[:max_seq_length - 3 - ensure_answer_min_length] + [config.eos_token_id]
-            a_maxlen = max_seq_length - len(b_ids) - 1
+            b_ids = tokenizer.encode(text=a)[:max_seq_length - 3- len(sptoken) - ensure_answer_min_length] + [config.eos_token_id]
+            a_maxlen = max_seq_length - len(b_ids) - len(sptoken)
             input_ids = a_ids[-a_maxlen:] + b_ids
             a_len = len(input_ids) - len(b_ids)
             if sup:
@@ -138,8 +138,8 @@ class TokenSiding:
 
             pos = 0
             while pos < len(input_ids_qa):
-                input_ids = sptoken + input_ids_qa[pos:pos + max_seq_length - 2]
-                labels = [-100] * len(sptoken) + labels_all[pos:pos + max_seq_length - 2]
+                input_ids = sptoken + input_ids_qa[pos:pos + max_seq_length - len(sptoken)]
+                labels = [-100] * len(sptoken) + labels_all[pos:pos + max_seq_length - len(sptoken)]
 
                 pos += sliding_size
                 if np.all(np.asarray(labels) == -100):
