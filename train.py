@@ -11,6 +11,7 @@ from transformers import HfArgumentParser
 from data_utils import NN_DataHelper, train_info_args, get_deepspeed_config,global_args
 from aigc_zoo.model_zoo.chatglm2.llm_model import MyTransformer, ChatGLMTokenizer,PetlArguments,ChatGLMConfig, setup_model_profile
 
+assert global_args["trainer_backend"] == "pl"
             
 if __name__ == '__main__':
     parser = HfArgumentParser((ModelArguments, TrainingArguments, DataArguments, PetlArguments))
@@ -22,10 +23,9 @@ if __name__ == '__main__':
     output_weight_dir = './best_ckpt'
 
     dataHelper = NN_DataHelper(model_args, training_args, data_args)
-    config_kwargs = {"pre_seq_len": global_args["pre_seq_len"],
-                     "prefix_projection": global_args["prefix_projection"]}
-    if global_args["num_layers"] > 0:
-        config_kwargs["num_layers"] = global_args["num_layers"]
+    config_kwargs = {}
+    if global_args["config_merge"]:
+        config_kwargs.update(global_args["config_merge"])
     tokenizer, config, _, _ = dataHelper.load_tokenizer_and_config(tokenizer_class_name=ChatGLMTokenizer,
                                                                    config_class_name=ChatGLMConfig,
                                                                    config_kwargs=config_kwargs)
@@ -132,10 +132,11 @@ if __name__ == '__main__':
         with_load_memory=data_args.data_backend == 'record',
         collate_fn=dataHelper.collate_fn,
         batch_size=training_args.train_batch_size,
-        drop_last=True,  # 多卡建议扔掉
+        drop_last=training_args.dataloader_drop_last,  # 多卡建议扔掉
         num_processes=trainer.world_size, process_index=trainer.global_rank,
         dataset_loader_filter_fn=dataset_loader_filter_fn,
-        num_workers=0
+        num_workers=training_args.dataloader_num_workers,
+        pin_memory=training_args.dataloader_pin_memory,
     )
 
     if train_datasets is not None:
