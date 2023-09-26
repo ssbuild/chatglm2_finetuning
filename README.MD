@@ -2,7 +2,7 @@
 - [deep_training](https://github.com/ssbuild/deep_training)
 
 ```text
-    dev 分支加一些新功能和想法 如果求稳定，请使用 stable分支
+    09-26 support transformers trainer
     08-16 解除 chatglm2-6b-int4 全参训练限制， 推理可选使用 Rope NtkScale , 不训练扩展推理长度
     08-02 增加 muti lora infer 例子, 手动升级 aigc_zoo , pip install -U git+https://github.com/ssbuild/aigc_zoo.git --force-reinstall --no-deps
     07-18 微调经验分享见: https://github.com/ssbuild/aigc_zoo#训练经验分享
@@ -144,7 +144,6 @@ a answer   must
 - [rlhf_chatyuan](https://github.com/ssbuild/rlhf_chatyuan)
 - [rwkv_finetuning](https://github.com/ssbuild/rwkv_finetuning)
 - [baichuan_finetuning](https://github.com/ssbuild/baichuan_finetuning)
-- [baichuan2_finetuning](https://github.com/ssbuild/baichuan_finetuning)
 - [xverse_finetuning](https://github.com/ssbuild/xverse_finetuning)
 - [aigc_serving](https://github.com/ssbuild/aigc_serving)
 - [aigc_evals](https://github.com/ssbuild/aigc_evals)
