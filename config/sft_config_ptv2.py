@@ -108,7 +108,7 @@ train_info_args_hf = {
     "logging_strategy": "steps",
     "logging_steps": 10,
     "tf32": False,
-    "gradient_checkpointing": True,
+    "gradient_checkpointing": False,
     'max_seq_length': 512,  #
     'max_target_length': 100,  # 预测最大长度, 保留字段
     'use_fast_tokenizer': False,
@@ -179,7 +179,7 @@ train_info_args_colossalai = {
     "logging_strategy": "steps",
     "logging_steps": 10,
     "tf32": False,
-    "gradient_checkpointing": True,
+    "gradient_checkpointing": False,
     'max_seq_length': 512,  #
     'max_target_length': 100,  # 预测最大长度, 保留字段
     'use_fast_tokenizer': False,
@@ -242,7 +242,7 @@ train_info_args_ac = {
     "logging_strategy": "steps",
     "logging_steps": 10,
     "tf32": False,
-    "gradient_checkpointing": True,
+    "gradient_checkpointing": False,
     'max_seq_length': 512,  #
     'max_target_length': 100,  # 预测最大长度, 保留字段
     'use_fast_tokenizer': False,
