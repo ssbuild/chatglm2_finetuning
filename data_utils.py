@@ -215,7 +215,7 @@ if __name__ == '__main__':
     else:
         parser = HfArgumentParser((ModelArguments, TrainingArgumentsAC, DataArguments, PetlArguments),
                                   conflict_handler='resolve')
-        model_args, training_args, data_args, lora_args, prompt_args = parser.parse_dict(train_info_args,allow_extra_keys=True,)
+        model_args, training_args, data_args, lora_args = parser.parse_dict(train_info_args,allow_extra_keys=True,)
 
     dataHelper = NN_DataHelper(model_args, training_args, data_args)
     tokenizer, config, _,_ = dataHelper.load_tokenizer_and_config(tokenizer_class_name=ChatGLMTokenizer,
