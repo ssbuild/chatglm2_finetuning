@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2023/3/9 15:29
+import sys
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
+
 import torch
 from deep_training.data_helper import ModelArguments
 from transformers import HfArgumentParser
-from data_utils import train_info_args, NN_DataHelper,global_args
-from aigc_zoo.model_zoo.chatglm2.llm_model import MyTransformer,ChatGLMTokenizer,setup_model_profile, ChatGLMConfig,PetlArguments
-
+from data_utils import train_info_args, NN_DataHelper, global_args
+from aigc_zoo.model_zoo.chatglm2.llm_model import MyTransformer, ChatGLMTokenizer, setup_model_profile, ChatGLMConfig, \
+    PetlArguments,PetlModel
 
 if __name__ == '__main__':
     train_info_args['seed'] = None
     parser = HfArgumentParser((ModelArguments,))
-    (model_args,) = parser.parse_dict(train_info_args,allow_extra_keys=True)
+    (model_args, ) = parser.parse_dict(train_info_args, allow_extra_keys=True)
     setup_model_profile()
     dataHelper = NN_DataHelper(model_args)
     tokenizer: ChatGLMTokenizer
@@ -20,7 +23,7 @@ if __name__ == '__main__':
 
     ckpt_dir = './best_ckpt/last'
     config = ChatGLMConfig.from_pretrained(ckpt_dir)
-    
+
     lora_args = PetlArguments.from_pretrained(ckpt_dir)
 
     assert lora_args.inference_mode == True and config.pre_seq_len is None
@@ -36,29 +39,42 @@ if __name__ == '__main__':
                              # # device_map="auto",
                              # device_map = {"":0} # 第一块卡
                              )
-    # 加载lora权重
-    pl_model.load_sft_weight(ckpt_dir)
+    # 加载多个lora权重
+    pl_model.load_sft_weight(ckpt_dir,adapter_name="default")
+
+    #加载多个lora权重
+    pl_model.load_sft_weight(ckpt_dir, adapter_name="default2")
+
+
+
 
     pl_model.eval().half().cuda()
 
-    enable_merge_weight = False
-    if enable_merge_weight:
-        # 合并lora 权重 保存
-        pl_model.save_sft_weight(os.path.join(ckpt_dir,'pytorch_model_merge.bin'),merge_lora_weight=True)
+    # backbone model replaced PetlModel
+    lora_model: PetlModel = pl_model.backbone
 
-    else:
-        model = pl_model.get_llm_model()
+    text_list = [
+        "写一个诗歌，关于冬天",
+        "晚上睡不着应该怎么办",
+    ]
 
-        text_list = [
-            "写一个诗歌，关于冬天",
-            "晚上睡不着应该怎么办",
-        ]
+    # 基准模型推理
+    with lora_model.disable_adapter():
         for input in text_list:
-            response, history = model.chat(tokenizer, input, history=[], max_length=2048,
+            #lora_model 调用子对象方法
+            response, history = lora_model.chat(tokenizer, input, history=[], max_length=2048,
                                            eos_token_id=config.eos_token_id,
                                            do_sample=True, top_p=0.7, temperature=0.95, )
             print("input", input)
             print("response", response)
 
+    lora_model.set_adapter(adapter_name='default')
 
+    for input in text_list:
+        # lora_model 调用子对象方法
+        response, history = lora_model.chat(tokenizer, input, history=[], max_length=2048,
+                                            eos_token_id=config.eos_token_id,
+                                            do_sample=True, top_p=0.7, temperature=0.95, )
+        print("input", input)
+        print("response", response)
 
