@@ -130,13 +130,13 @@ a answer   must
     dataHelper.make_dataset_with_args(data_args.train_file,mixed_data=False, shuffle=True,mode='train',num_process_worker=0)
     
     # 全参数训练 
-        bash train_full.sh
+        bash train_full.sh -m train 
         
     # lora adalora ia3 
-        bash train_lora.sh
+        bash train_lora.sh -m train 
         
     # ptv2
-        bash train_ptv2.sh
+        bash train_ptv2.sh -m train 
 ```
 
 ## 训练参数
