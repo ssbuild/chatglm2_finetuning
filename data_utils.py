@@ -74,7 +74,7 @@ class NN_DataHelper(DataHelper):
             ds = TokenIdsMaker.slidding(tokenizer,config, examples=examples, max_seq_length=max_seq_length,
                                         sptoken=self.sptoken, **data_conf[strategy])
         else:
-            raise ValueError('Invlid strategy',strategy)
+            raise ValueError('Invalid strategy',strategy)
 
         if not ds:
             return None
