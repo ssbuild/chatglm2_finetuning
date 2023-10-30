@@ -151,6 +151,8 @@ a answer   must
 - [tf-task-example](https://github.com/ssbuild/tf-task-example)
 - [chatmoss_finetuning](https://github.com/ssbuild/chatmoss_finetuning)
 - [chatglm_finetuning](https://github.com/ssbuild/chatglm_finetuning)
+- [chatglm2_finetuning](https://github.com/ssbuild/chatglm2_finetuning)
+- [chatglm3_finetuning](https://github.com/ssbuild/chatglm3_finetuning)
 - [chatyuan_finetuning](https://github.com/ssbuild/chatyuan_finetuning)
 - [llm_finetuning](https://github.com/ssbuild/llm_finetuning)
 - [rlhf_llm](https://github.com/ssbuild/rlhf_llm)

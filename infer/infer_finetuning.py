@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     ###################### 注意 选最新权重
     #选择最新的权重 ， 根据时间排序 选最新的
-    config = ChatGLMConfig.from_pretrained('./best_ckpt')
+    config = ChatGLMConfig.from_pretrained('../scripts/best_ckpt')
 
     # new_num_tokens = config.vocab_size
     # if config.task_specific_params is not None and config.task_specific_params.get('vocab_size', None) is not None:
@@ -40,12 +40,12 @@ if __name__ == '__main__':
                              # new_num_tokens=new_num_tokens,#扩充词
                              )
     if deep_config is None:
-        train_weight = './best_ckpt/last-v3.ckpt'
+        train_weight = './scripts/best_ckpt/last-v3.ckpt'
     else:
         #使用转换脚本命令 生成 ./best_ckpt/last/best.pt 权重文件
         # cd best_ckpt/last
         # python zero_to_fp32.py . best.pt
-        train_weight = './best_ckpt/last/best.pt'
+        train_weight = './scripts/best_ckpt/last/best.pt'
 
     #加载微调权重
     pl_model.load_sft_weight(train_weight,strict=True)
