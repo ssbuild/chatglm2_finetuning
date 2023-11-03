@@ -2,9 +2,12 @@
 # @Author  : tk
 # @FileName: data_utils.py
 import copy
+import glob
 import json
 import os
 import typing
+from functools import cache
+
 import numpy as np
 import torch
 from deep_training.data_helper import DataHelper, ModelArguments, TrainingArguments, DataArguments, TrainingArgumentsHF, \
@@ -143,6 +146,7 @@ class NN_DataHelper(DataHelper):
     # 读取文件
     def on_get_corpus(self, files: typing.List, mode: str):
         D = []
+        files = sum([glob.glob(file) for file in files], [])
         for file in files:
             with open(file, mode='r', encoding='utf-8', newline='\n') as f:
                 lines = f.readlines()
@@ -199,6 +203,24 @@ class NN_DataHelper(DataHelper):
         if data_args.do_test:
             self.make_dataset_with_args(data_args.test_file, mode='test',schema=schema)
 
+        # 记录缓存文件
+        with open(os.path.join(data_args.output_dir, 'intermediate_file_index.json'), mode='w',
+                  encoding='utf-8') as f:
+            f.write(json.dumps({
+                "train_files": self.train_files,
+                "eval_files": self.eval_files,
+                "test_files": self.test_files,
+            }, ensure_ascii=False))
+
+    @cache
+    def load_dataset_files(self):
+        data_args = self.data_args
+        filename = os.path.join(data_args.output_dir, 'intermediate_file_index.json')
+        assert os.path.exists(filename), 'make you dataset firstly'
+        with open(filename, mode='r', encoding='utf-8') as f:
+            return json.loads(f.read())
+
+
 if __name__ == '__main__':
     if global_args[ "trainer_backend" ] == "hf":
         parser = HfArgumentParser((ModelArguments, TrainingArgumentsHF, DataArguments, PetlArguments),
@@ -220,35 +242,20 @@ if __name__ == '__main__':
     dataHelper = NN_DataHelper(model_args, training_args, data_args)
     tokenizer, config, _,_ = dataHelper.load_tokenizer_and_config(tokenizer_class_name=ChatGLMTokenizer,
                                                                   config_class_name=ChatGLMConfig)
-    
-
-
 
     # 缓存数据集
-    # 检测是否存在 output/dataset_0-train.record ，不存在则制作数据集
+    print(f'to make dataset is overwrite_cache {data_args.overwrite_cache}')
     dataHelper.make_dataset_all()
 
+    print('make dataset complete!')
+    print('check data !')
+    dataset = dataHelper.load_sequential_sampler(dataHelper.load_dataset_files()["train_files"],
+                                                 with_load_memory=data_args.data_backend == 'record',
+                                                 batch_size=1,
+                                                 collate_fn=dataHelper.collate_fn)
 
-    # def shuffle_records(record_filenames, outfile, compression_type='GZIP'):
-    #     print('shuffle_records record...')
-    #     options = RECORD.TFRecordOptions(compression_type=compression_type)
-    #     dataset_reader = Loader.RandomDataset(record_filenames, options=options, with_share_memory=True)
-    #     data_size = len(dataset_reader)
-    #     all_example = []
-    #     for i in tqdm(range(data_size), desc='load records'):
-    #         serialized = dataset_reader[i]
-    #         all_example.append(serialized)
-    #     dataset_reader.close()
-    #
-    #     shuffle_idx = list(range(data_size))
-    #     random.shuffle(shuffle_idx)
-    #     writer = WriterObject(outfile, options=options)
-    #     for i in tqdm(shuffle_idx, desc='shuffle record'):
-    #         example = all_example[i]
-    #         writer.write(example)
-    #     writer.close()
-    #
-    #
-    # # 对每个record 再次打乱
-    # for filename in dataHelper.train_files:
-    #     shuffle_records(filename, filename)
+    print('total', len(dataset))
+    for i, d in enumerate(dataset):
+        print(d)
+        if i > 3:
+            break
